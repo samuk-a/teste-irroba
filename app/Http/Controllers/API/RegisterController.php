@@ -19,9 +19,10 @@ class RegisterController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'password' => 'required',
             'c_password' => 'required|same:password',
+            'type' => 'numeric|integer'
         ]);
    
         if($validator->fails()){
@@ -30,9 +31,12 @@ class RegisterController extends BaseController
    
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
+        if (!isset($input['type']))
+            $input['type'] = 1;
         $user = User::create($input);
         $success['token'] =  $user->createToken('IrrobaSchool')->accessToken;
         $success['name'] =  $user->name;
+        
    
         return $this->sendResponse($success, 'User register successfully.', 201);
     }

@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Classes;
+use App\Models\Permission;
+use App\Http\Resources\PermissionResource;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use App\Http\Resources\ClassesResource;
+use Validator;
 
-class ClassesController extends BaseController
+class PermissionController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -16,8 +16,8 @@ class ClassesController extends BaseController
      */
     public function index()
     {
-        $classes = Classes::all();
-        return $this->sendResponse(ClassesResource::collection($classes), 'Classes retrieved successfully');
+        $permissions = Permission::all();
+        return $this->sendResponse(PermissionResource::collection($permissions), 'Permissions retrieved successfully');
     }
 
     /**
@@ -32,16 +32,14 @@ class ClassesController extends BaseController
             $data = $request->all();
             $validator = Validator::make($data, [
                 'name' => 'required|max:255',
-                'professor_id' => 'required|integer',
-                'weekday' => 'required|integer',
-                'initial_hour' => 'required',
-                'duration' => 'required|integer'
+                'permission_type' => 'required|in:CREATE,READ,UPDATE,DELETE',
+                'permission_area' => 'required'
             ]);
             if ($validator->fails()) {
                 return $this->sendError('Validation Error.', $validator->errors());
             }
-            $class = Classes::create($data);
-            return $this->sendResponse($class, 'Class created successfully', 201);
+            $permission = Permission::create($data);
+            return $this->sendResponse($permission, 'Permission created successfully', 201);
         } catch (\Exception $e) {
             return $this->sendError('Insert Error.', $e->getMessage(), 500);
         }
@@ -50,36 +48,36 @@ class ClassesController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Classes  $classes
+     * @param  \App\Models\Permission  $permission
      * @return \Illuminate\Http\Response
      */
-    public function show(Classes $classes)
+    public function show(Permission $permission)
     {
-        return $this->sendResponse(new ClassesResource($classes), 'Class retrieved successfully.');
+        return $this->sendResponse(new PermissionResource($permission), 'Permission retrieved successfully.');
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Classes  $classes
+     * @param  \App\Models\Permission  $permission
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Classes $classes)
+    public function update(Request $request, Permission $permission)
     {
-        $classes->update($request->all());
-        return $this->sendResponse(new ClassesResource($classes), 'Class updated successfully.');
+        $permission->update($request->all());
+        return $this->sendResponse(new PermissionResource($permission), 'Permission updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Classes  $classes
+     * @param  \App\Models\Permission  $permission
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Classes $classes)
+    public function destroy(Permission $permission)
     {
-        $classes->delete();
-        return $this->sendResponse($classes, 'Class delete successfully.');
+        $permission->delete();
+        return $this->sendResponse($permission, 'Permission delete successfully.');
     }
 }

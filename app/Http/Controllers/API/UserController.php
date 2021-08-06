@@ -2,14 +2,11 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Administrator;
-use App\Models\Professor;
-use App\Models\Student;
 use App\Models\User;
+use App\Models\UserType;
 use Illuminate\Http\Request;
 use App\Http\Resources\UserResource;
 use Validator;
-use DB;
 
 class UserController extends BaseController
 {
@@ -18,52 +15,10 @@ class UserController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
-        return $this->sendResponse(UserResource::collection($users), 'Users retrieved successfully');
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function listProfessors()
-    {
-        $users = Professor::join('users', 'users.id', '=', 'professors.user_id')
-                ->select('users.*')
-                ->get()->toArray();
-
-        return $this->sendResponse($users, 'Professors retrieved successfully');
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function listStudents()
-    {
-        $users = Student::join('users', 'users.id', '=', 'students.user_id')
-                ->select('users.*')
-                ->get()->toArray();
-
-        return $this->sendResponse(UserResource::collection($users), 'Students retrieved successfully');
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function listAdministrators()
-    {
-        $users = Administrator::join('users', 'users.id', '=', 'administrators.user_id')
-                ->select('users.*')
-                ->get()->toArray();
-
-        return $this->sendResponse(UserResource::collection($users), 'Administrators retrieved successfully');
+        $users = empty($request->all()) ? User::all() : User::where('type', (int)$request->query('type'))->get();
+        return $this->sendResponse($users, 'Users retrieved successfully');
     }
 
     /**
@@ -77,7 +32,7 @@ class UserController extends BaseController
         $data = $request->all();
         $validator = Validator::make($data, [
             'name' => 'required',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email',
             'type' => 'required'
         ]);
 
@@ -85,24 +40,8 @@ class UserController extends BaseController
             return $this->sendError('Validation Error.', $validator->errors());
         }
         $data['password'] = bcrypt('Irroba.1111');
-        DB::beginTransaction();
-        try {
-            $user = User::create($data);
-            switch ($data['type']) {
-                case 'P':
-                    Professor::create(['user_id' => $user->id]);
-                    break;
-                case 'A':
-                    Administrator::create(['user_id' => $user->id]);
-                    break;
-                default:
-                    Student::create(['user_id' => $user->id]);
-            }
-            DB::commit();
-            return $this->sendResponse($user, 'User created successfully.', 201);
-        } catch (Exception) {
-            DB::rollback();
-        }
+        $user = User::create($data);
+        return $this->sendResponse($user, 'User created successfully.', 201);
     }
 
     /**
@@ -113,7 +52,7 @@ class UserController extends BaseController
      */
     public function show(User $user)
     {
-        //
+        return $this->sendResponse(new UserResource($user), 'User retrieved successfully.');
     }
 
     /**
@@ -125,7 +64,8 @@ class UserController extends BaseController
      */
     public function update(Request $request, User $user)
     {
-        //
+        $user->update($request->all());
+        return $this->sendResponse(new UserResource($user), 'User updated successfully.');
     }
 
     /**
@@ -136,6 +76,7 @@ class UserController extends BaseController
      */
     public function destroy(User $user)
     {
-        //
+        $user->delete();
+        return $this->sendResponse($user, 'User delete successfully.');
     }
 }
