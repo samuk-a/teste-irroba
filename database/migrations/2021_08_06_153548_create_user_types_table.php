@@ -16,7 +16,7 @@ class CreateUserTypesTable extends Migration
         Schema::create('user_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->json('permission_ids');
+            $table->string('permission_ids');
             $table->timestamps();
         });
     }
