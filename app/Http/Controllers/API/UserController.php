@@ -33,7 +33,7 @@ class UserController extends BaseController
         $validator = Validator::make($data, [
             'name' => 'required',
             'email' => 'required|email|unique:users,email',
-            'type' => 'required'
+            'type' => 'required|exists:user_types,id'
         ]);
 
         if ($validator->fails()){
@@ -77,6 +77,6 @@ class UserController extends BaseController
     public function destroy(User $user)
     {
         $user->delete();
-        return $this->sendResponse($user, 'User delete successfully.');
+        return $this->sendResponse($user, 'User deleted successfully.');
     }
 }

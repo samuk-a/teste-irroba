@@ -22,4 +22,8 @@ class Request extends Model
         'accepted',
         'reason_denied'
     ];
+
+    protected $casts = [
+        'accepted' => 'boolean'
+    ];
 }

@@ -32,7 +32,7 @@ class ClassesController extends BaseController
             $data = $request->all();
             $validator = Validator::make($data, [
                 'name' => 'required|max:255',
-                'professor_id' => 'required|integer',
+                'professor_id' => 'required|integer|exists:users,id',
                 'weekday' => 'required|integer',
                 'initial_hour' => 'required',
                 'duration' => 'required|integer'
@@ -80,6 +80,6 @@ class ClassesController extends BaseController
     public function destroy(Classes $classes)
     {
         $classes->delete();
-        return $this->sendResponse($classes, 'Class delete successfully.');
+        return $this->sendResponse($classes, 'Class deleted successfully.');
     }
 }

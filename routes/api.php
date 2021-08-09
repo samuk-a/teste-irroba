@@ -6,7 +6,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\ClassesController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\UserTypeController;
 use App\Http\Controllers\API\PermissionController;
+use App\Http\Controllers\API\RequestController;
+use App\Http\Controllers\API\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,7 +27,11 @@ Route::post('login', [RegisterController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
     Route::resource('classes', ClassesController::class);
     Route::resource('users', UserController::class);
+    Route::resource('userTypes', UserTypeController::class);
     Route::resource('permissions', PermissionController::class);
+    Route::resource('requests', RequestController::class);
+    Route::post('notify', [NotificationController::class, 'sendRequestNotification']);
+    Route::get('notifications', [NotificationController::class, 'index']);
 });
 
 Route::fallback(function(){

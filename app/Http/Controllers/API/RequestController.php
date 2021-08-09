@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\Request;
+use App\Models\Request as RequestAccess;
 use Illuminate\Http\Request;
+use App\Http\Resources\RequestResource;
+use Validator;
 
-class RequestController extends Controller
+class RequestController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -15,7 +16,8 @@ class RequestController extends Controller
      */
     public function index()
     {
-        //
+        $requests = RequestAccess::all();
+        return $this->sendResponse(RequestResource::collection($requests), 'Requests retrieved successfully');
     }
 
     /**
@@ -26,7 +28,20 @@ class RequestController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        try {
+            $data = $request->all();
+            $validator = Validator::make($data, [
+                'class_id' => 'required|exists:classes,id'
+            ]);
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors());
+            }
+            $data['student_id'] = auth()->user();
+            $request = RequestAccess::create($data);
+            return $this->sendResponse($request, 'Access requested successfully', 201);
+        } catch (\Exception $e) {
+            return $this->sendError('Insert Error.', $e->getMessage(), 500);
+        }
     }
 
     /**
@@ -35,9 +50,9 @@ class RequestController extends Controller
      * @param  \App\Models\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
+    public function show(RequestAccess $request)
     {
-        //
+        return $this->sendResponse(new RequestResource($request), 'Request retrieved successfully.');
     }
 
     /**
@@ -47,9 +62,10 @@ class RequestController extends Controller
      * @param  \App\Models\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Request $request)
+    public function update(Request $request, RequestAccess $requestAccess)
     {
-        //
+        $requestAccess->update($request->all());
+        return $this->sendResponse(new RequestResource($requestAccess), 'Request updated successfully.');
     }
 
     /**
@@ -58,8 +74,9 @@ class RequestController extends Controller
      * @param  \App\Models\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function destroy(RequestAccess $request)
     {
-        //
+        $request->delete();
+        return $this->sendResponse($request, 'Request deleted successfully.');
     }
 }

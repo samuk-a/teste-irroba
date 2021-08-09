@@ -78,6 +78,6 @@ class PermissionController extends BaseController
     public function destroy(Permission $permission)
     {
         $permission->delete();
-        return $this->sendResponse($permission, 'Permission delete successfully.');
+        return $this->sendResponse($permission, 'Permission deleted successfully.');
     }
 }
