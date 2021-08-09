@@ -16,9 +16,12 @@ class RequestController extends BaseController
      */
     public function index()
     {
-        if (!check_permission('READ', 'requests'))
+        if (!check_permission('READ', 'requests|requests\.personal'))
             return $this->sendError('Forbidden', 'Page unaccessable', 403);
-        $requests = RequestAccess::all();
+        if (check_permission('READ', 'requests\.personal'))
+            $requests = RequestAccess::all()->where('student_id', auth()->user()->id);
+        else
+            $requests = RequestAccess::all();
         return $this->sendResponse(RequestResource::collection($requests), 'Requests retrieved successfully');
     }
 
@@ -40,7 +43,7 @@ class RequestController extends BaseController
             if ($validator->fails()) {
                 return $this->sendError('Validation Error.', $validator->errors());
             }
-            $data['student_id'] = auth()->user();
+            $data['student_id'] = auth()->user()->id;
             $request = RequestAccess::create($data);
             return $this->sendResponse($request, 'Access requested successfully', 201);
         } catch (\Exception $e) {
@@ -56,7 +59,9 @@ class RequestController extends BaseController
      */
     public function show(RequestAccess $request)
     {
-        if (!check_permission('READ', 'requests'))
+        if (!check_permission('READ', 'requests|requests\.personal'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
+        if (check_permission('DELETE', 'requests\.personal') && $request->student_id != auth()->user()->id)
             return $this->sendError('Forbidden', 'Page unaccessable', 403);
         return $this->sendResponse(new RequestResource($request), 'Request retrieved successfully.');
     }
@@ -84,7 +89,9 @@ class RequestController extends BaseController
      */
     public function destroy(RequestAccess $request)
     {
-        if (!check_permission('DELETE', 'requests'))
+        if (!check_permission('DELETE', 'requests|requests\.personal'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
+        if (check_permission('DELETE', 'requests\.personal') && $request->student_id != auth()->user()->id)
             return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $request->delete();
         return $this->sendResponse($request, 'Request deleted successfully.');
