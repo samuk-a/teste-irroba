@@ -16,6 +16,8 @@ class ClassesController extends BaseController
      */
     public function index()
     {
+        if (!check_permission('READ', 'classes'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $classes = Classes::all();
         return $this->sendResponse(ClassesResource::collection($classes), 'Classes retrieved successfully');
     }
@@ -55,6 +57,8 @@ class ClassesController extends BaseController
      */
     public function show(Classes $classes)
     {
+        if (!check_permission('READ', 'classes'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         return $this->sendResponse(new ClassesResource($classes), 'Class retrieved successfully.');
     }
 
@@ -67,6 +71,8 @@ class ClassesController extends BaseController
      */
     public function update(Request $request, Classes $classes)
     {
+        if (!check_permission('UPDATE', 'classes'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $classes->update($request->all());
         return $this->sendResponse(new ClassesResource($classes), 'Class updated successfully.');
     }
@@ -79,6 +85,8 @@ class ClassesController extends BaseController
      */
     public function destroy(Classes $classes)
     {
+        if (!check_permission('DELETE', 'classes'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $classes->delete();
         return $this->sendResponse($classes, 'Class deleted successfully.');
     }

@@ -17,6 +17,8 @@ class UserTypeController extends BaseController
      */
     public function index()
     {
+        if (!check_permission('READ', 'user_types'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $types = UserType::all();
         return $this->sendResponse(UserTypeResource::collection($types), 'Types retrieved successfully');
     }
@@ -29,6 +31,8 @@ class UserTypeController extends BaseController
      */
     public function store(Request $request)
     {
+        if (!check_permission('CREATE', 'user_types'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         try {
             $data = $request->all();
             $validator = Validator::make($data, [
@@ -61,6 +65,8 @@ class UserTypeController extends BaseController
      */
     public function show(UserType $userType)
     {
+        if (!check_permission('READ', 'user_types'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         return $this->sendResponse(new UserTypeResource($userType), 'Type retrieved successfully.');
     }
 
@@ -73,6 +79,8 @@ class UserTypeController extends BaseController
      */
     public function update(Request $request, UserType $userType)
     {
+        if (!check_permission('UPDATE', 'user_types'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $userType->update($request->all());
         return $this->sendResponse(new UserTypeResource($userType), 'Type updated successfully.');
     }
@@ -85,6 +93,8 @@ class UserTypeController extends BaseController
      */
     public function destroy(UserType $userType)
     {
+        if (!check_permission('DELETE', 'user_types'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $userType->delete();
         return $this->sendResponse($userType, 'Type deleted successfully.');
     }

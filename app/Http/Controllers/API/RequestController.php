@@ -16,6 +16,8 @@ class RequestController extends BaseController
      */
     public function index()
     {
+        if (!check_permission('READ', 'requests'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $requests = RequestAccess::all();
         return $this->sendResponse(RequestResource::collection($requests), 'Requests retrieved successfully');
     }
@@ -28,6 +30,8 @@ class RequestController extends BaseController
      */
     public function store(Request $request)
     {
+        if (!check_permission('CREATE', 'requests'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         try {
             $data = $request->all();
             $validator = Validator::make($data, [
@@ -52,6 +56,8 @@ class RequestController extends BaseController
      */
     public function show(RequestAccess $request)
     {
+        if (!check_permission('READ', 'requests'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         return $this->sendResponse(new RequestResource($request), 'Request retrieved successfully.');
     }
 
@@ -64,6 +70,8 @@ class RequestController extends BaseController
      */
     public function update(Request $request, RequestAccess $requestAccess)
     {
+        if (!check_permission('UPDATE', 'requests'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $requestAccess->update($request->all());
         return $this->sendResponse(new RequestResource($requestAccess), 'Request updated successfully.');
     }
@@ -76,6 +84,8 @@ class RequestController extends BaseController
      */
     public function destroy(RequestAccess $request)
     {
+        if (!check_permission('DELETE', 'requests'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $request->delete();
         return $this->sendResponse($request, 'Request deleted successfully.');
     }

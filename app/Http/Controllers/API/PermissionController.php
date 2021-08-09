@@ -16,6 +16,8 @@ class PermissionController extends BaseController
      */
     public function index()
     {
+        if (!check_permission('CREATE', 'permissions'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $permissions = Permission::all();
         return $this->sendResponse(PermissionResource::collection($permissions), 'Permissions retrieved successfully');
     }
@@ -28,6 +30,8 @@ class PermissionController extends BaseController
      */
     public function store(Request $request)
     {
+        if (!check_permission('CREATE', 'permissions'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         try {
             $data = $request->all();
             $validator = Validator::make($data, [
@@ -53,6 +57,8 @@ class PermissionController extends BaseController
      */
     public function show(Permission $permission)
     {
+        if (!check_permission('READ', 'permissions'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         return $this->sendResponse(new PermissionResource($permission), 'Permission retrieved successfully.');
     }
 
@@ -65,6 +71,8 @@ class PermissionController extends BaseController
      */
     public function update(Request $request, Permission $permission)
     {
+        if (!check_permission('UPDATE', 'permissions'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $permission->update($request->all());
         return $this->sendResponse(new PermissionResource($permission), 'Permission updated successfully.');
     }
@@ -77,6 +85,8 @@ class PermissionController extends BaseController
      */
     public function destroy(Permission $permission)
     {
+        if (!check_permission('DELETE', 'permissions'))
+            return $this->sendError('Forbidden', 'Page unaccessable', 403);
         $permission->delete();
         return $this->sendResponse($permission, 'Permission deleted successfully.');
     }
